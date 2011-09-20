@@ -1,0 +1,10 @@
+category: Graphics
+requires: libgcc1 libglib2.0_0 libstdc++6 liblensfun-common
+external-source: lensfun
+sdesc: "Photographic lens distortion correction library (runtime)"
+ldesc: "The goal of the lensfun library is to provide a open source 
+database of photographic lenses and their characteristics. The lensfun 
+library not only provides a way to read the database and search for 
+specific things in it, but also provides a set of algorithms for 
+correcting images based on detailed knowledge of lens properties and 
+calibration data."
