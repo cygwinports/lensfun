@@ -1,5 +1,7 @@
+inherit cmake
+
 NAME="lensfun"
-VERSION=0.2.7
+VERSION=0.3.1
 RELEASE=1
 CATEGORY="Libs"
 SUMMARY="Photographic lens distortion correction library"
@@ -8,34 +10,33 @@ database of photographic lenses and their characteristics. The lensfun library
 not only provides a way to read the database and search for specific things in
 it, but also provides a set of algorithms for correcting images based on
 detailed knowledge of lens properties and calibration data."
-HOMEPAGE="http://lensfun.berlios.de/"
-SRC_URI="mirror://berlios/lensfun/lensfun-${VERSION}.tar.bz2"
-PATCH_URI="0.2.5-cygwin.patch"
+HOMEPAGE="http://lensfun.sourceforge.net/"
+SRC_URI="mirror://sourceforge/lensfun/lensfun-${VERSION}.tar.gz"
+PATCH_URI="
+	http://pkgs.fedoraproject.org/cgit/lensfun.git/plain/lensfun-update-data.patch
+	http://pkgs.fedoraproject.org/cgit/lensfun.git/plain/lensfun-0.3.1-INSTALL_HELPER_SCRIPTS.patch
+	http://pkgs.fedoraproject.org/cgit/lensfun.git/plain/lensfun-0.3.1-mandir.patch
+"
 
-PKG_NAMES="liblensfun0 liblensfun-common liblensfun-devel"
+PKG_NAMES="liblensfun0 liblensfun-common liblensfun-devel liblensfun-doc lensfun-tools"
 liblensfun0_REQUIRES="liblensfun-common"
 liblensfun0_CONTENTS="usr/bin/cyglensfun-0.dll"
-liblensfun_common_CONTENTS="usr/share/doc/ usr/share/lensfun/"
+liblensfun_common_CONTENTS="--exclude=html usr/share/doc/ usr/share/lensfun/ var/lib/lensfun-updates/"
 liblensfun_devel_CONTENTS="usr/include/ usr/lib/"
+liblensfun_doc_CATEGORY="Doc"
+liblensfun_doc_CONTENTS="usr/share/doc/${NAME}/html/"
+lensfun_tools_CATEGORY="Graphics"
+lensfun_tools_CONTENTS="usr/bin/lensfun-* usr/share/man/man1/lensfun-*"
 
-src_compile() {
-	lndirs
-	cd ${B}
-	./configure --prefix=/usr --docdir=/usr/share/doc/${NAME}
-	cygmake all \
-		SO_="cyg" _SO="-${VERSION%%.*}.dll" _EX=".exe" \
-		GCC.CFLAGS.SHARED="-DDLL_EXPORT" \
-		GCC.LDFLAGS.SHARED="-shared -Wl,--out-implib,liblensfun.dll.a" \
-		VALID_VERSION=
-}
+CYGCMAKE_ARGS="-DBUILD_DOC=ON -DDOCDIR=/usr/share/doc/${NAME}/html"
 
 src_install() {
 	cd ${B}
-	cygmake install INSTALL_PREFIX=${D} \
-		SO_="cyg" _SO="-${VERSION%%.*}.dll" _EX=".exe" \
-		VALID_VERSION=
+	cyginstall
 
-	dodir /usr/bin
-	mv ${D}/usr/lib/*.dll ${D}/usr/bin/
-	dolib liblensfun.dll.a
+	keepdir /var/lib/lensfun-updates
+
+	# requires gksudo
+	rm -f ${D}/usr/bin/g-lensfun-update-data \
+	      ${D}/usr/share/man/man1/g-lensfun-update-data.1*
 }
